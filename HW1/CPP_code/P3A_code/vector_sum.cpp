@@ -4,7 +4,7 @@
 # include <cassert>
 # include <chrono>
 
-int main( )
+int main(int argc, char* argv[])
 {
 
 unsigned long int N=pow(2,20); //problem size
@@ -35,5 +35,7 @@ duration<double> time_span = duration_cast<duration<double>>(t2 - t1);
 using namespace std;
 cout << "result = " << s << "\n";
 cout << "time use = " << time_span.count()*1000.0 << "ms \n";
+
+return 0;
 
 } //-- End of the main program --
