@@ -1,0 +1,44 @@
+cython codes for homework 1
+
+====================================
+How to run the code
+====================================
+
+1) On Mac:
+
+Go to any of the sub-directories, for example: 
+$cd P3A_code 
+
+Then, build the cython module:
+$./compile.sh
+
+If no error occurs, you can run the program:
+$python run.py
+
+To change the number of threads, for example, to 4:
+$export OMP_NUM_THREADS=4
+
+To run the program multiple times with different numbers of threads:
+$./test_multithread.sh
+
+To modify the test case (problem size, initial conditions...):
+modify run.py
+
+To clean the cython builds (not necessary in most of the time) 
+$./clean.sh
+
+2) On Odyssey:
+
+I recommend to use the interactive mode instead of sbatch. For example:
+$srun -p general --pty --x11=first --mem-per-cpu=3000 -N 1 -c 64 -t 00-01:00 /bin/bash
+(It is likely to keep pending forever...)
+
+Then it is all the same as on the PC.
+
+====================================
+Notes
+====================================
+1) *.c files (as one of the intermediate products of cython) are 
+ignored in this cython_code/ directory. To add pure-C codes, put
+them in another directories.
+
