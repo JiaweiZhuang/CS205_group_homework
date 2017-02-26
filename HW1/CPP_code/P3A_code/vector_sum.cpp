@@ -7,11 +7,10 @@
 int main( )
 {
 
-int N=pow(2,20); //problem size
-int i;
+unsigned long int N=pow(2,20); //problem size
+unsigned long int i; // for iteration
 double s=0.0; // hold the sum
 double* v; // dynamically allocated array  
-timespec time1, time2; // for timing
 
 v = new double [N];
 assert (v != NULL); // in case of inadequate memory 
