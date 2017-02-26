@@ -41,7 +41,7 @@ using namespace std::chrono;
 high_resolution_clock::time_point t1 = high_resolution_clock::now();
 
 // Matrix times vector 
-#pragma omp parallel for default(none) \
+#pragma omp parallel for default(none) schedule(static) \
     shared(N,A,x,y) private(i,j)
 for (i=0; i<N; i++){
     for (j=0; j<N; j++){

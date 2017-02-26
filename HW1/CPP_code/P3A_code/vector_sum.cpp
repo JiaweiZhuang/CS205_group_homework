@@ -23,7 +23,7 @@ using namespace std::chrono;
 high_resolution_clock::time_point t1 = high_resolution_clock::now();
 
 // summing up the vector
-#pragma omp parallel for default(none) \
+#pragma omp parallel for default(none) schedule(static) \
     shared(N,v) private(i) reduction(+:s)
 for (i=0; i<N; i++){
         s += v[i];
