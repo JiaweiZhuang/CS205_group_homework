@@ -1,0 +1,40 @@
+C++ codes for homework 1
+
+For unknown reasons, the C++ version yields better scalability than the
+cython version (where we cannot see speed-up with more than 8 threads) 
+
+====================================
+How to run the code
+====================================
+
+1) On Mac:
+
+Install gcc5 to support openmp
+brew install gcc5
+
+set it as the default compiler 
+alias g++="g++-5"
+
+Go to any of the sub-directories, for example:
+$cd P3A_code 
+
+Compile the C++ code:
+$./compile.sh
+
+Run the executable. for example:
+$./vector_sum.out
+
+To change the number of threads, for example, to 4:
+$export OMP_NUM_THREADS=4
+
+To run the program multiple times with different numbers of threads:
+$./test_multithread.sh
+
+2) On Odyssey:
+
+Ensure gcc5 or newer:
+$module load gcc/5.2.0-fasrc02
+
+go to the interactive mode like the cython tests
+
+Then, all the same as on the PC. 
