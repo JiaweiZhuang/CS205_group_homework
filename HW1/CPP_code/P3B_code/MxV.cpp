@@ -19,8 +19,11 @@ y = new double [N];
 assert (y != NULL); 
 
 A = new double* [N];
+assert (A != NULL); 
 for (int i=0; i<N; i++){
-    A[i] = new double [N]; }
+    A[i] = new double [N]; 
+    assert (A[i] != NULL);
+}
 
 // initial condition 
 for (i=0; i<N; i++){
