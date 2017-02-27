@@ -1,7 +1,6 @@
 #!/bin/bash
 
-# must be square number
-thread_list='1 4 16 64'
+thread_list='1 2 4 8 16 32 64'
 
 for thread in $thread_list
 do

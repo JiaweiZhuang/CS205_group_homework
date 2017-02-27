@@ -90,7 +90,7 @@ vector< vector<double> > block_MxM(vector< vector<double> > A, vector< vector<do
     // bsize must be N's factor! And it should be less than bsize_max otherwise we will have idle threads
 
     if (bsize > bsize_max){
-    cout << "warning: bize is too large so that there will be idle threads" << endl;
+    cout << "warning: bsize is too large so that there will be idle threads" << endl;
     cout << "you should decrease bsize, or increase problem size, or decrease OMP_NUM_THREADS" << endl << endl;
     }
 
