@@ -151,8 +151,9 @@ int main(){
 
 
 	// dgemm in the level-3 BLAS for reference 
-	// The library (OpenBLAS) only provides C interface, and does some low-level vectorization, so it turns out to be 
-	// very fast.
+	// The library (OpenBLAS) only provides C interface. On its github wiki page, it says that the "dgemm_" 
+	// funciton is called from Fortran interface, but I believe it's optimized since it turns out to be super 
+	// fast.
 	cout << "degmm:" << endl;
 	unsigned long size = N * N;
 	double* AA = (double*)malloc(sizeof(double) * size);
