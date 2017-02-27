@@ -1,3 +1,6 @@
+// The completed version of matrix multiplication
+// Including BLAS-dgemm, serial MxM and parallel-block MxM
+
 # include <omp.h>
 # include <iostream>
 # include <cmath>
@@ -8,6 +11,7 @@
 
 using namespace std;
 
+// Loading C-BLAS Library
 extern "C" {
   #include "stdio.h"
   #include "stdlib.h"
@@ -35,6 +39,7 @@ double* ref_MxM(double* A, double* B, int N){
   return C;
 }
 
+// function for serial matrix multiplication 
 vector< vector<double> > serial_MxM(vector< vector<double> > A, vector< vector<double> > B, unsigned long int N){
 	vector<double> c(N,0);
 	vector< vector<double> >  C(N,c);
@@ -44,10 +49,9 @@ vector< vector<double> > serial_MxM(vector< vector<double> > A, vector< vector<d
 				C[i][j]+=A[i][k] * B[k][j];
 			}
 	return C;
-
-
 }
 
+// function for adding two matices 
 vector< vector<double> > matrix_add( vector< vector<double> > A, vector< vector<double> > B){
 	unsigned long int N = A.size();
 	vector<double> c(N,0);
@@ -57,9 +61,9 @@ vector< vector<double> > matrix_add( vector< vector<double> > A, vector< vector<
 			C[i][j]=A[i][j]+B[i][j];
 		}
 	return C;
-
 }
 
+// function for parallel block matrix multiplication 
 vector< vector<double> > block_MxM(vector< vector<double> > A, vector< vector<double> > B, unsigned long int N){
 	vector<double> C_temp(N,0);
 	vector< vector<double> >  C(N,C_temp);
@@ -121,8 +125,6 @@ vector< vector<double> > block_MxM(vector< vector<double> > A, vector< vector<do
 			c  = matrix_add(serial_MxM(a,b,bsize),c);
 			
 		}
-
-
 		
 	    // write back to global matrix
 	    // no OpenMP reduction needed 
@@ -137,6 +139,7 @@ vector< vector<double> > block_MxM(vector< vector<double> > A, vector< vector<do
 }
 
 
+// main program. Compare the performance of dgemm, serial MxM and parallel-block MxM
 int main(){
 
 	unsigned long int N=pow(2,10); //problem size
@@ -144,7 +147,6 @@ int main(){
 	// set initial value for A and B
 	vector<double> a(N,1);
 	vector< vector<double> >  A(N,a);
-
 
 	vector<double> b(N,1);
 	vector< vector<double> >  B(N,b);
@@ -167,27 +169,26 @@ int main(){
 	auto t2 = chrono::high_resolution_clock::now();
 	chrono::duration<double>  time_span = t2 - t1;
 	cout << "first element = " << C[0] << endl; //should equal to N
-	cout << "time use = " << time_span.count()*1000 << "ms"<< endl;
+	cout << "time use = " << time_span.count()*1000 << "ms"<< endl << endl ;
 
 
-
-	
-	// cout << "serial version:" << endl;
-	// auto t1 = chrono::high_resolution_clock::now();
-	// vector< vector<double> >  C1 = serial_MxM(A,B,N); 
-	// auto t2 = chrono::high_resolution_clock::now();
-	// chrono::duration<double>  time_span = t2 - t1;
-	// cout << "first element = " << C1[0][0] << endl; //should equal to N
-	// cout << "time use = " << time_span.count()*1000 << "ms"<< endl;
-	
-
-	// cout << "block version:" << endl;
-	// auto t1 = chrono::high_resolution_clock::now();
-	// vector< vector<double> >  C2 = block_MxM(A,B,N); 
-	// auto t2 = chrono::high_resolution_clock::now();
-	// chrono::duration<double> time_span = t2 - t1;
-	// cout << "first element = " << C2[0][0] << endl; //should equal to N
-	// cout << "time use = " << time_span.count()*1000 << "ms"<< endl;
+	// run naive MxM (3-level nested loops) 
+    cout << "serial version:" << endl;
+    t1 = chrono::high_resolution_clock::now();
+    vector< vector<double> >  C1 = serial_MxM(A,B,N); 
+    t2 = chrono::high_resolution_clock::now();
+    time_span = t2 - t1;
+    cout << "first element = " << C1[0][0] << endl; //should equal to N
+    cout << "time use = " << time_span.count()*1000 << "ms"<< endl << endl;
+    
+	// run parallel block MxM 
+    cout << "block version:" << endl;
+    t1 = chrono::high_resolution_clock::now();
+    vector< vector<double> >  C2 = block_MxM(A,B,N); 
+    t2 = chrono::high_resolution_clock::now();
+    time_span = t2 - t1;
+    cout << "first element = " << C2[0][0] << endl; //should equal to N
+    cout << "time use = " << time_span.count()*1000 << "ms"<< endl;
 
 	return 0;
 
