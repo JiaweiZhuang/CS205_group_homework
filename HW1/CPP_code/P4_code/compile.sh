@@ -2,4 +2,4 @@
 
 # c++11 standard is required for the chrono (timing) library 
 # need g++-5 or newer
-g++-5 -O2 MxM.cpp -o MxM.out -std=c++11 -fopenmp -lpthread
+g++ -O2 MxM.cpp -o MxM.out -std=c++11 -fopenmp -lpthread
