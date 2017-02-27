@@ -8,6 +8,33 @@
 
 using namespace std;
 
+extern "C" {
+  #include "stdio.h"
+  #include "stdlib.h"
+  void dgemm_(char*, char*, int*, int*,int*, double*, double*, int*, double*, int*, double*, double*, int*);
+}
+
+double* ref_MxM(double* A, double* B, int N){
+
+  unsigned long size = N * N;
+  double* C = (double*)malloc(sizeof(double) * size);
+
+  // Use reference BLAS library to compute the multiplciation
+  char option = 'N';
+  double alpha = 1.0;
+  double beta = 0.0;
+  dgemm_(&option, &option, &N, &N, &N, &alpha, A, &N, B, &N, &beta, C, &N);
+
+  free(A);
+  free(B);
+
+  // result return
+  // for (int i = 0; i < N*N; i++) {
+  //   printf("%lf\n", C[i]);
+  // }
+  return C;
+}
+
 vector< vector<double> > serial_MxM(vector< vector<double> > A, vector< vector<double> > B, unsigned long int N){
 	vector<double> c(N,0);
 	vector< vector<double> >  C(N,c);
@@ -112,46 +139,55 @@ vector< vector<double> > block_MxM(vector< vector<double> > A, vector< vector<do
 
 int main(){
 
-unsigned long int N=pow(2,10); //problem size
+	unsigned long int N=pow(2,10); //problem size
 
-// set initial value for A and B
-vector<double> a(N,1);
-vector< vector<double> >  A(N,a);
-
-
-vector<double> b(N,1);
-vector< vector<double> >  B(N,b);
+	// set initial value for A and B
+	vector<double> a(N,1);
+	vector< vector<double> >  A(N,a);
 
 
-// dgemm in the level-3 BLAS for reference
-// cout << "degmm:" << endl;
-// auto t1 = chrono::high_resolution_clock::now();
-
-// auto t2 = chrono::high_resolution_clock::now();
-// chrono::duration<double>  time_span = t2 - t1;
-// cout << "first element = " << C[0][0] << endl; //should equal to N
-// cout << "time use = " << time_span.count()*1000 << "ms"<< endl;
+	vector<double> b(N,1);
+	vector< vector<double> >  B(N,b);
 
 
+	// dgemm in the level-3 BLAS for reference 
+	// The library (OpenBLAS) only provides C interface, and does some low-level vectorization, so it turns out to be 
+	// very fast.
+	cout << "degmm:" << endl;
+	unsigned long size = N * N;
+	double* AA = (double*)malloc(sizeof(double) * size);
+	double* BB = (double*)malloc(sizeof(double) * size);
+	for (int i = 0; i < N*N; i++) {
+		AA[i] = A[i / N][i % N];
+		BB[i] = B[i / N][i % N];
+	}
+	auto t1 = chrono::high_resolution_clock::now();
+	double* C = ref_MxM(AA, BB, N);
+	auto t2 = chrono::high_resolution_clock::now();
+	chrono::duration<double>  time_span = t2 - t1;
+	cout << "first element = " << C[0] << endl; //should equal to N
+	cout << "time use = " << time_span.count()*1000 << "ms"<< endl;
 
-/*
-cout << "serial version:" << endl;
-auto t1 = chrono::high_resolution_clock::now();
-vector< vector<double> >  C1 = serial_MxM(A,B,N); 
-auto t2 = chrono::high_resolution_clock::now();
-chrono::duration<double>  time_span = t2 - t1;
-cout << "first element = " << C1[0][0] << endl; //should equal to N
-cout << "time use = " << time_span.count()*1000 << "ms"<< endl;
-*/
 
-cout << "block version:" << endl;
-auto t1 = chrono::high_resolution_clock::now();
-vector< vector<double> >  C2 = block_MxM(A,B,N); 
-auto t2 = chrono::high_resolution_clock::now();
-chrono::duration<double> time_span = t2 - t1;
-cout << "first element = " << C2[0][0] << endl; //should equal to N
-cout << "time use = " << time_span.count()*1000 << "ms"<< endl;
 
-return 0;
+	
+	// cout << "serial version:" << endl;
+	// auto t1 = chrono::high_resolution_clock::now();
+	// vector< vector<double> >  C1 = serial_MxM(A,B,N); 
+	// auto t2 = chrono::high_resolution_clock::now();
+	// chrono::duration<double>  time_span = t2 - t1;
+	// cout << "first element = " << C1[0][0] << endl; //should equal to N
+	// cout << "time use = " << time_span.count()*1000 << "ms"<< endl;
+	
+
+	// cout << "block version:" << endl;
+	// auto t1 = chrono::high_resolution_clock::now();
+	// vector< vector<double> >  C2 = block_MxM(A,B,N); 
+	// auto t2 = chrono::high_resolution_clock::now();
+	// chrono::duration<double> time_span = t2 - t1;
+	// cout << "first element = " << C2[0][0] << endl; //should equal to N
+	// cout << "time use = " << time_span.count()*1000 << "ms"<< endl;
+
+	return 0;
 
 }
