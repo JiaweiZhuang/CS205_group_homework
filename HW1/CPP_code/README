@@ -27,6 +27,10 @@ $./vector_sum.out
 To change the number of threads, for example, to 4:
 $export OMP_NUM_THREADS=4
 
+To change the problem size:
+modify the variable "N" in the source code
+and re-compile
+
 To run the program multiple times with different numbers of threads:
 $./test_multithread.sh
 
