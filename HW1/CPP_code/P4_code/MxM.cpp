@@ -38,13 +38,15 @@ vector< vector<double> > block_MxM(vector< vector<double> > A, vector< vector<do
 	vector< vector<double> >  C(N,C_temp);
 
 
-		// determine the block size, based on N and the number of threads
-	int thread_num; // how many threads 
+	// determine the block size, based on N and the number of threads
+	int thread_num=1; // assume single thread first  
 	#pragma omp parallel shared(thread_num) 
 	{
 	  #pragma omp master
 	  {
+          #if defined(_OPENMP)
 	      thread_num = omp_get_num_threads();
+          #endif 
 	      cout << "Number of threads = " << thread_num << endl;
 	  }
 	}
