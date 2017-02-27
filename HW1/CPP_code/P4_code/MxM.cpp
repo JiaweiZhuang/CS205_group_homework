@@ -54,46 +54,43 @@ vector< vector<double> > block_MxM(vector< vector<double> > A, vector< vector<do
 	// we have qxq blocks
 	// make sure that p is a square number
 	int block_num = sqrt(thread_num);
+	cout << "Number of blocks along one dimension= " << block_num << endl;
 
 	// block size must be an integer 
 	int bsize = N/block_num;
+	cout << "block size = " << bsize << endl;
 
-	cout<<"****************AAAA***************"<<endl;
 	//temp storage
 	vector<double> temp(bsize,0);
 	vector< vector<double> >  a(bsize,temp);
 	vector< vector<double> >  b(bsize,temp);
 	vector< vector<double> >  c(bsize,temp);
 
-	int i;
-	int j;
-	int k;
-	int idx;
 
 	/* block matrix multiplication 
 	A,B,C (NxN) are the original matrices shared by all cpus
 	a,b,c (qxq) are block matrices on individual cpus
 	idx unrolls the 2D index (i,j) to 1D
-	*/ 
-	#pragma omp parallel for default(none) schedule(static) \
-	    shared(N,A,B,C,bsize,block_num) private(a,b,c,i,j,k,idx)
-	for (idx=0; idx<block_num*block_num; idx++){
+	*/
+	int i,j,k,idx,p,q;
 
-		
+    #pragma omp parallel for default(none) schedule(static) \
+	    shared(A,B,C,bsize,block_num,thread_num) private(p,q,i,j,k,idx) firstprivate(a,b,c)
+	for (idx=0; idx<thread_num; idx++){
+
 	    // i,j = convert_1D_to_2D(idx)`
 		i = idx/block_num;
-		j = idx%block_num -1;
+		j = idx%block_num;
 
-		
 		for(k=0; k<block_num ; k++){
 			// vector< vector<double> > a = A[i*bsize:i*bsize+bsize,k*bsize:k*bsize+bsize] 
 			// vector< vector<double> > b = B[k*bsize:k*bsize+bsize,j*bsize:j*bsize+bsize]
-			for (int p=0; p<bsize; p++)
-				for (int q=0; q<bsize; q++){
+			for (p=0; p<bsize; p++)
+				for (q=0; q<bsize; q++){
 					a[p][q] = A[i*bsize+p][k*bsize+q];
 					b[p][q] = B[k*bsize+p][j*bsize+q];
 			}
-
+		
 			c  = matrix_add(serial_MxM(a,b,bsize),c);
 			
 		}
@@ -103,14 +100,13 @@ vector< vector<double> > block_MxM(vector< vector<double> > A, vector< vector<do
 	    // write back to global matrix
 	    // no OpenMP reduction needed 
 	    // C[i*bsize:i*bsize+bsize,j*bsize:j*bsize+bsize] = c
-
-		for (int p=0; p<bsize; p++)
-			for (int q=0; q<bsize; q++){
+		for (p=0; p<bsize; p++)
+			for (q=0; q<bsize; q++){
 				C[i*bsize+p][j*bsize+q] = c[p][q];
 		}
 	} //-- End of parallel region --
 
-
+    return C;
 }
 
 
@@ -123,7 +119,7 @@ vector<double> a(N,1);
 vector< vector<double> >  A(N,a);
 
 
-vector<double> b(N,2);
+vector<double> b(N,1);
 vector< vector<double> >  B(N,b);
 
 
@@ -138,14 +134,15 @@ vector< vector<double> >  B(N,b);
 
 
 
-// cout << "serial version:" << endl;
-// auto t1 = chrono::high_resolution_clock::now();
-// vector< vector<double> >  C1 = serial_MxM(A,B,N); 
-// auto t2 = chrono::high_resolution_clock::now();
-// chrono::duration<double>  time_span = t2 - t1;
-// cout << "first element = " << C1[0][0] << endl; //should equal to N
-// cout << "time use = " << time_span.count()*1000 << "ms"<< endl;
-
+/*
+cout << "serial version:" << endl;
+auto t1 = chrono::high_resolution_clock::now();
+vector< vector<double> >  C1 = serial_MxM(A,B,N); 
+auto t2 = chrono::high_resolution_clock::now();
+chrono::duration<double>  time_span = t2 - t1;
+cout << "first element = " << C1[0][0] << endl; //should equal to N
+cout << "time use = " << time_span.count()*1000 << "ms"<< endl;
+*/
 
 cout << "block version:" << endl;
 auto t1 = chrono::high_resolution_clock::now();
@@ -154,9 +151,6 @@ auto t2 = chrono::high_resolution_clock::now();
 chrono::duration<double> time_span = t2 - t1;
 cout << "first element = " << C2[0][0] << endl; //should equal to N
 cout << "time use = " << time_span.count()*1000 << "ms"<< endl;
-
-
-
 
 return 0;
 
