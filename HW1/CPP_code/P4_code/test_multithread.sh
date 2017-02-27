@@ -8,5 +8,5 @@ do
     echo ============================
     echo testing with $thread threads
     export OMP_NUM_THREADS=$thread
-    ./MxM.out 
+    ./MxM.out 1 # provide an argument to surpress serial and dgemm 
 done

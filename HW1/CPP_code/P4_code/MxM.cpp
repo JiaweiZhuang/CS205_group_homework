@@ -82,14 +82,24 @@ vector< vector<double> > block_MxM(vector< vector<double> > A, vector< vector<do
 	  }
 	}
 
-	// we have qxq blocks
-	// make sure that p is a square number
-	int block_num = sqrt(thread_num);
-	cout << "Number of blocks along one dimension= " << block_num << endl;
+	// block_num is the number of blocks along 1 dimension 
+	int block_num_min = sqrt(thread_num); // one process handle one block
+	int bsize_max = N/block_num_min;  // this might be too big for cache
 
-	// block size must be an integer 
-	int bsize = N/block_num;
-	cout << "block size = " << bsize << endl;
+    int bsize = 256; // choose a size that fits the cache. 
+    // bsize must be N's factor! And it should be less than bsize_max otherwise we will have idle threads
+
+    if (bsize > bsize_max){
+    cout << "warning: bize is too large so that there will be idle threads" << endl;
+    cout << "you should decrease bsize, or increase problem size, or decrease OMP_NUM_THREADS" << endl << endl;
+    }
+
+    int block_num = N/bsize; // one thread might handle many blocks 
+
+    cout << "largest possible bsize (might be too large for cache) = " << bsize_max << endl;
+	cout << "block size we choose = " << bsize << endl;
+	cout << "Number of blocks along one dimension= " << block_num << endl;
+	cout << "Each thread handles " << (block_num*block_num)/thread_num << " blocks" << endl;
 
 	//temp storage
 	vector<double> temp(bsize,0);
@@ -106,8 +116,8 @@ vector< vector<double> > block_MxM(vector< vector<double> > A, vector< vector<do
 	int i,j,k,idx,p,q;
 
     #pragma omp parallel for default(none) schedule(static) \
-	    shared(A,B,C,bsize,block_num,thread_num) private(p,q,i,j,k,idx) firstprivate(a,b,c)
-	for (idx=0; idx<thread_num; idx++){
+	    shared(A,B,C,bsize,block_num) private(p,q,i,j,k,idx) firstprivate(a,b,c)
+	for (idx=0; idx<block_num*block_num; idx++){
 
 	    // i,j = convert_1D_to_2D(idx)`
 		i = idx/block_num;
@@ -140,7 +150,7 @@ vector< vector<double> > block_MxM(vector< vector<double> > A, vector< vector<do
 
 
 // main program. Compare the performance of dgemm, serial MxM and parallel-block MxM
-int main(){
+int main(int argc, char** argv){
 
 	unsigned long int N=pow(2,10); //problem size
 
@@ -151,12 +161,17 @@ int main(){
 	vector<double> b(N,1);
 	vector< vector<double> >  B(N,b);
 
+    auto t1=chrono::high_resolution_clock::now();
+    auto t2=chrono::high_resolution_clock::now();
+    chrono::duration<double>  time_span;
 
+    if (argc == 1){ //if arguments provided, skip serial and dgemm for scalability tests
+    
 	// dgemm in the level-3 BLAS for reference 
 	// The library (OpenBLAS) only provides C interface. On its github wiki page, it says that the "dgemm_" 
 	// funciton is called from Fortran interface, but I believe it's optimized since it turns out to be super 
 	// fast.
-	cout << "degmm:" << endl;
+	cout << "dgemm:" << endl;
 	unsigned long size = N * N;
 	double* AA = (double*)malloc(sizeof(double) * size);
 	double* BB = (double*)malloc(sizeof(double) * size);
@@ -164,13 +179,12 @@ int main(){
 		AA[i] = A[i / N][i % N];
 		BB[i] = B[i / N][i % N];
 	}
-	auto t1 = chrono::high_resolution_clock::now();
+	t1 = chrono::high_resolution_clock::now();
 	double* C = ref_MxM(AA, BB, N);
-	auto t2 = chrono::high_resolution_clock::now();
-	chrono::duration<double>  time_span = t2 - t1;
+	t2 = chrono::high_resolution_clock::now();
+	time_span = t2 - t1;
 	cout << "first element = " << C[0] << endl; //should equal to N
 	cout << "time use = " << time_span.count()*1000 << "ms"<< endl << endl ;
-
 
 	// run naive MxM (3-level nested loops) 
     cout << "serial version:" << endl;
@@ -181,6 +195,8 @@ int main(){
     cout << "first element = " << C1[0][0] << endl; //should equal to N
     cout << "time use = " << time_span.count()*1000 << "ms"<< endl << endl;
     
+    }
+
 	// run parallel block MxM 
     cout << "block version:" << endl;
     t1 = chrono::high_resolution_clock::now();
