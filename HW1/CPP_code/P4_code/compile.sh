@@ -6,7 +6,7 @@
 if [ "$(uname)" == "Darwin" ]; then
 	g++ -O2 MxM.cpp -o MxM.out -std=c++11 -fopenmp -lpthread lib/libopenblas_mac.a
 else
-	g++ -O2 MxM.cpp -o MxM.out -std=c++11 -fopenmp -lpthread lib/libopenblas_linux.a
+	g++ -O2 MxM.cpp -o MxM.out -std=c++11 -fopenmp -lpthread lib/libopenblas_Ody.a
 fi 
 	
 
