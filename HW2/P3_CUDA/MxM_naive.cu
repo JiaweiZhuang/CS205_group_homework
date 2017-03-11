@@ -12,7 +12,7 @@ __global__ void MxM_naive(double* A, double* B, double* C, const int N) {
     int j = blockIdx.x * blockDim.x + threadIdx.x;    // Column j of matrix C
 
     double C_temp = 0;
-	for (int k=0; k<N; k++) {
+    for (int k=0; k<N; k++) {
         // use 1D indexing
         C_temp += A[i*N + k] * B[k*N + j];
     }
@@ -26,7 +26,7 @@ __global__ void MxM_naive(double* A, double* B, double* C, const int N) {
 
 int main() {
     // set up problem size
-    int N = pow(2, 10);
+    int N = pow(2, 12);
     int size = N * N;
 
     // malloc host memory and initialize data
@@ -40,9 +40,9 @@ int main() {
 
 	// malloc device global memory and transfer data from host to device
     double *d_A, *d_B, *d_C;
-	cudaMalloc((void **)&d_A, size * sizeof(double));
-	cudaMalloc((void **)&d_B, size * sizeof(double));
-	cudaMalloc((void **)&d_C, size * sizeof(double));
+    cudaMalloc((void **)&d_A, size * sizeof(double));
+    cudaMalloc((void **)&d_B, size * sizeof(double));
+    cudaMalloc((void **)&d_C, size * sizeof(double));
 
     cudaMemcpy(d_A, h_A, size*sizeof(double), cudaMemcpyHostToDevice);
     cudaMemcpy(d_B, h_B, size*sizeof(double), cudaMemcpyHostToDevice);
@@ -53,13 +53,15 @@ int main() {
  	// so we use many blocks to generate N*N threads in total.
 	// The 'block' here has nothing to do with the block matrix multiplication,
 	// because block ids are immediately converted back to matrix indices.
- 	dim3 dimBlock(16, 16);
+    dim3 dimBlock(16, 16);
     dim3 dimGrid(N/dimBlock.x, N/dimBlock.y);
 
+    // warm-up. The first call is significantly slower than the following calls.
+    MxM_naive<<<dimGrid, dimBlock>>>(d_A, d_B, d_C, N);
 	// start timing and execute the kernel function
-	double iStart, iElaps;
-	iStart = seconds();
-	MxM_naive<<<dimGrid, dimBlock>>>(d_A, d_B, d_C, N);
+    double iStart, iElaps;
+    iStart = seconds();
+    MxM_naive<<<dimGrid, dimBlock>>>(d_A, d_B, d_C, N);
     iElaps = seconds() - iStart;
 
     // copy kernel result back to host side
@@ -75,6 +77,6 @@ int main() {
     cudaFree(d_B);
     cudaFree(d_C);
 
-	return(0);
+    return(0);
    
 }
