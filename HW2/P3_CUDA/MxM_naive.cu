@@ -68,7 +68,6 @@ int main() {
     cudaMemcpy(h_C, d_C, size*sizeof(double), cudaMemcpyDeviceToHost);
 
 	// print the results
-    printf("First element =  %f \n", h_A[0]);
     printf("First element =  %f \n", h_C[0]);
     printf("Time elapse = %f ms \n", iElaps*1000.0);
 	
