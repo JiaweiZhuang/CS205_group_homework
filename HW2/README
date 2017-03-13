@@ -30,7 +30,7 @@ https://aws.amazon.com/marketplace/pp/B01LZMLK1K
 2) Click "AWS Marketplace"
 3) Search for "NVIDIA CUDA Toolkit"
 4) Select the instance type and launch. Note that it only allows 
-"GPU instances" or "GPU instances" instance types.
+"GPU instances" or "GPU computing" instance types.
 
 For convenience, I also rememmend to add the nvcc compiler to the PATH:
 $export PATH="/usr/local/cuda-7.5/bin":$PATH
@@ -44,7 +44,7 @@ for installing for PGI compiler.
 
 Here I extract the basic steps from the documentation:
 
-1) Download the pacakge
+1) Download the package
 2) $sudo ./install
 3) Answer yes to all questions.
 4) Say you choose to install in pgi_path/, 
