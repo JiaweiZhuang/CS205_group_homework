@@ -2,7 +2,7 @@
 # include <stdlib.h>
 # include <stdio.h>
 # include <math.h>
-# define BSIZE 16 // block size
+# define BSIZE 16 //block size must be larger than 16 (otherwise a weird bug occurs)
 
 // for dynamically allocating 2D array in pure-C environment
 double** Make2DDoubleArray(int arraySizeX, int arraySizeY) {
@@ -15,7 +15,7 @@ double** Make2DDoubleArray(int arraySizeX, int arraySizeY) {
 
 int main() {
 
-    int N=pow(2,6); //problem size
+    int N=pow(2,10); //problem size
     int block_num = N/BSIZE; // number of block along one dimension
     int i,j,k; // interative
 
@@ -42,10 +42,10 @@ int main() {
     // A tile of the global matrix.
     // Although they are only needed on the device, 
     // we still declare them on the host for consistency.
-    double** a = Make2DDoubleArray(BSIZE, BSIZE);
-    double** b = Make2DDoubleArray(BSIZE, BSIZE);
-    double** c = Make2DDoubleArray(BSIZE, BSIZE);
-        
+    // We must use static allocation for privatizing a,b,c in the parallel region
+    // The issue is recorded at http://www.pgroup.com/userforum/viewtopic.php?t=5542
+    double a[BSIZE][BSIZE],b[BSIZE][BSIZE],c[BSIZE][BSIZE];
+
     // Initial condition
     for (i=0; i<BSIZE; i++){
     for (j=0; j<BSIZE; j++){
@@ -68,12 +68,12 @@ int main() {
     // adjacent loops (similar to CUDA's threadIdx.x and threadIdx.y).
     // This avoids unrolling 2D index to 1D as we did in HW1 with OpenMP
 
-    #pragma acc data pcopyin(A[:N][:N],B[:N][:N],c[:BSIZE][:BSIZE],a[:BSIZE][:BSIZE],b[:BSIZE][:BSIZE]) pcopy(C[:N][:N]) 
+    #pragma acc data copyin(A[:N][:N],B[:N][:N],c[:BSIZE][:BSIZE],a[:BSIZE][:BSIZE],b[:BSIZE][:BSIZE]) copy(C[:N][:N]) 
     {
 
     // p, q, r  are automatically set private. 
     // Unlike OpenMP, here you can't set private before declaring a variable.
-    #pragma acc parallel private(i,j,k) firstprivate(a,b,c) num_gangs(4) vector_length(16) 
+    #pragma acc parallel private(a,b) firstprivate(c) num_gangs(64) vector_length(128)
     {
 
         // assign blocks to gangs

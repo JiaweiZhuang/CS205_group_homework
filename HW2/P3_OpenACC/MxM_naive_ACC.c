@@ -2,7 +2,6 @@
 # include <stdlib.h>
 # include <stdio.h>
 # include <math.h>
-# define BSIZE 16 // block size
 
 // for dynamically allocating 2D array in pure-C environment
 double** Make2DDoubleArray(int arraySizeX, int arraySizeY) {
@@ -42,9 +41,8 @@ int main() {
     double iStart, iElaps;
     iStart = seconds();
 
-    #pragma acc parallel loop gang
+    #pragma acc parallel loop collapse(2)
     for(i=0; i<N; i++){
-        #pragma acc loop vector
         for(j=0; j<N; j++){
 
             for(k=0; k<N; k++){
