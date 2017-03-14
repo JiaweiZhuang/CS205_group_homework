@@ -71,7 +71,7 @@ __global__ void MxM_block(double* A, double* B, double* C, const int N) {
 // host code is almost the same as the naive one
 int main() {
     // set up problem size
-    int N = pow(2, 12);
+    int N = pow(2, 10);
     int size = N * N;
 
     // malloc host memory and initialize data
@@ -83,7 +83,11 @@ int main() {
         h_B[i] = 1.0;
     }
 
-	// malloc device global memory and transfer data from host to device
+	// timing all the device operations
+    double iStart, iElaps;
+    iStart = seconds();
+
+    // malloc device global memory and transfer data from host to device
     double *d_A, *d_B, *d_C;
     cudaMalloc((void **)&d_A, size * sizeof(double));
     cudaMalloc((void **)&d_B, size * sizeof(double));
@@ -98,16 +102,14 @@ int main() {
     dim3 dimBlock(BSIZE, BSIZE);
     dim3 dimGrid(N/dimBlock.x, N/dimBlock.y);
 
-    // warm-up. The first call is significantly slower than the following calls.
+    // execute the kernel function
     MxM_block<<<dimGrid, dimBlock>>>(d_A, d_B, d_C, N);
-	// start timing and execute the kernel function
-    double iStart, iElaps;
-    iStart = seconds();
-    MxM_block<<<dimGrid, dimBlock>>>(d_A, d_B, d_C, N);
-    iElaps = seconds() - iStart;
 
     // copy kernel result back to host side
     cudaMemcpy(h_C, d_C, size*sizeof(double), cudaMemcpyDeviceToHost);
+
+    // end of timing
+    iElaps = seconds() - iStart;
 
 	// print the results
     printf("First element =  %f \n", h_C[0]);

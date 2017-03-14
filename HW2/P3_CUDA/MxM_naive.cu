@@ -26,7 +26,7 @@ __global__ void MxM_naive(double* A, double* B, double* C, const int N) {
 
 int main() {
     // set up problem size
-    int N = pow(2, 12);
+    int N = pow(2, 10);
     int size = N * N;
 
     // malloc host memory and initialize data
@@ -37,6 +37,10 @@ int main() {
         h_A[i] = 1.0;
         h_B[i] = 1.0;
     }
+
+    // timing all the device operations 
+    double iStart, iElaps;
+    iStart = seconds();
 
 	// malloc device global memory and transfer data from host to device
     double *d_A, *d_B, *d_C;
@@ -58,14 +62,15 @@ int main() {
 
     // warm-up. The first call is significantly slower than the following calls.
     MxM_naive<<<dimGrid, dimBlock>>>(d_A, d_B, d_C, N);
-	// start timing and execute the kernel function
-    double iStart, iElaps;
-    iStart = seconds();
+
+    // execute the kernel function
     MxM_naive<<<dimGrid, dimBlock>>>(d_A, d_B, d_C, N);
-    iElaps = seconds() - iStart;
 
     // copy kernel result back to host side
     cudaMemcpy(h_C, d_C, size*sizeof(double), cudaMemcpyDeviceToHost);
+
+    // end of timing
+    iElaps = seconds() - iStart;
 
 	// print the results
     printf("First element =  %f \n", h_C[0]);
