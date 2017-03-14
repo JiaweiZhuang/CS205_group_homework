@@ -68,7 +68,7 @@ int main() {
     // adjacent loops (similar to CUDA's threadIdx.x and threadIdx.y).
     // This avoids unrolling 2D index to 1D as we did in HW1 with OpenMP
 
-    #pragma acc data copyin(A[:N][:N],B[:N][:N],c[:BSIZE][:BSIZE],a[:BSIZE][:BSIZE],b[:BSIZE][:BSIZE]) copy(C[:N][:N]) 
+    #pragma acc data copyin(A[:N][:N],B[:N][:N]) copy(C[:N][:N]) 
     {
 
     // p, q, r  are automatically set private. 
