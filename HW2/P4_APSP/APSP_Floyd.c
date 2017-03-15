@@ -12,6 +12,18 @@ int** Make2DIntArray(int arraySizeX, int arraySizeY) {
     return theArray;
 } 
 
+int** Floyd_APSP(int** D, int N){
+    int i,j,k;
+
+    for(k=0; k<N; k++)
+        for(i=0; i<N; i++)
+            for(j=0; j<N; j++){
+                D[i][j] = MIN(D[i][j], D[i][k]+D[k][j]);
+            }
+    return D;
+
+}
+
 
 int main(){
 	//build the graph of lecture11 slide23
@@ -38,11 +50,8 @@ int main(){
     D[2][3]=1;
     D[3][0]=6;
 
-    for(k=0; k<N; k++)
-    	for(i=0; i<N; i++)
-    		for(j=0; j<N; j++){
-    			D[i][j] = MIN(D[i][j], D[i][k]+D[k][j]);
-    		}
+    D = Floyd_APSP(D, N);
+
 
     //check
 	for (i=0; i<N; i++){

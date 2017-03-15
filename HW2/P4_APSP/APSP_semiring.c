@@ -102,7 +102,7 @@ for(i=0; i<n/2; i++)
 
 int main(){
 
-	//build the graph of lecture11 slide26
+	//build the graph of lecture11 slide23
 	int N; //number of vertex;
 	int i, j;
 
