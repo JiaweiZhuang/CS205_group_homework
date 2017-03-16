@@ -50,7 +50,7 @@ int main(int argc,char *argv[]){
 
 	//build the graph of lecture11 slide20
 	int N; //number of vertex;
-	int i, j, flag;
+	int i, j, idx, flag;
 	int** A;
 	int nParentNode;  //number of active parent nodes
 	int distance;
@@ -94,13 +94,13 @@ int main(int argc,char *argv[]){
 // }
 
 while(1){
-	distance += 1;  //furtherest levels
+	distance = distance + 1;  //furtherest levels
 
 	//Parallel!!!
 	for (i=0; i<nParentNode; i++){
 		idx = idxParentNode[i];
 		for(j=0; j<N; j++){
-			y[j] ||= A[idx][j] && x[idx];
+			y[j] = y[j] || (A[idx][j] && x[idx]);
 		}
 	}
 	
@@ -110,13 +110,11 @@ while(1){
 
         for(j=0; j<N; j++)
         {
-                if(y[j]){
-			idxParentNode[nParentNode] = j;   //recording index of front parent nodes
-			nParentNode += 1; 
-			if(!record[j]){
-                        	record[j] = 1;
-                        	flag = 0;
-			}
+                if(y[j]&&!record[j]){
+			idxParentNode[nParentNode] = j;   //recording index of new parent nodes
+			nParentNode = nParentNode + 1; 
+                        record[j] = 1;
+                        flag = 0;
                 }
         }
 
@@ -125,8 +123,7 @@ while(1){
 	{
 		printf("%d ", y[j]);
 	}
-	printf("\n");
-	printf("distance %d", distance);
+	printf("distance %d \n", distance);
 
 	if(flag==1){break;}
 
@@ -137,6 +134,4 @@ while(1){
 	}
 
 }
-
-
 }
