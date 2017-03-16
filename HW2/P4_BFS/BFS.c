@@ -50,8 +50,10 @@ int main(int argc,char *argv[]){
 
 	//build the graph of lecture11 slide20
 	int N; //number of vertex;
-	int i, j, temp;
+	int i, j, flag;
 	int** A;
+	int nParentNode;  //number of active parent nodes
+	int distance;
 	if (argc != 3) {
             printf("Usage: %s N filenm\n",argv[0]);
             return 1;
@@ -71,7 +73,19 @@ int main(int argc,char *argv[]){
 	for (i=0; i<N; i++){
     	y[i]=0;
 	}
+	
+	nParentNode = 1;
+	distance = 0;	
+	int* idxParentNode = Make1DIntArray(N);	//index of active parent nodes
+        for (i=0; i<N; i++){
+        idxParentNode[i]=0;
+        }
 
+	int* record = Make1DIntArray(N);
+        record[0]=1; //1 is visited nodes
+        for (i=1; i<N; i++){
+        record[i]=0;
+        }
 //MxV function   for reference
 // for (i=0; i<N; i++){
 //     	for (j=0; j<N; j++){
@@ -80,14 +94,31 @@ int main(int argc,char *argv[]){
 // }
 
 while(1){
+	distance += 1;  //furtherest levels
 
-	//parallel here?
-	for (i=0; i<N; i++){
-		if(!x[i]){break;}
+	//Parallel!!!
+	for (i=0; i<nParentNode; i++){
+		idx = idxParentNode[i];
 		for(j=0; j<N; j++){
-			y[j] |= A[i][j] & x[i];
+			y[j] ||= A[idx][j] && x[idx];
 		}
 	}
+	
+	//reset parent nodes and check if converge
+	flag = 1; //converge flag
+	nParentNode = 0;
+
+        for(j=0; j<N; j++)
+        {
+                if(y[j]){
+			idxParentNode[nParentNode] = j;   //recording index of front parent nodes
+			nParentNode += 1; 
+			if(!record[j]){
+                        	record[j] = 1;
+                        	flag = 0;
+			}
+                }
+        }
 
 	//print y vector to check
 	for(j=0; j<N; j++)
@@ -95,15 +126,9 @@ while(1){
 		printf("%d ", y[j]);
 	}
 	printf("\n");
+	printf("distance %d", distance);
 
-	//check if there's more node to visit
-	temp=1;
-	for(j=0; j<N; j++)
-	{
-		temp &= y[j];
-	}
-
-	if(temp==1){break;}
+	if(flag==1){break;}
 
 	//copy y to x
 	for(j=0; j<N; j++)
