@@ -1,0 +1,3 @@
+Edge list: sample.txt N = 7 
+Edge list: rmat13.txt N = 8192
+Example to run: ./BSF 7 sample.txt
