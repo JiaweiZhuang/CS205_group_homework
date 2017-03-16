@@ -4,18 +4,18 @@
 # define INF 100
 # define MIN(x, y) (((x) < (y)) ? (x) : (y))
 
-int** Make2DIntArray(int arraySizeX, int arraySizeY) {
-    int** theArray;
-    theArray = (int**) malloc(arraySizeX*sizeof(int*));
+double** Make2DdoubleArray(double arraySizeX, double arraySizeY) {
+    double** theArray;
+    theArray = (double**) malloc(arraySizeX*sizeof(double*));
     for (int i = 0; i < arraySizeX; i++)
-        theArray[i] = (int*) malloc(arraySizeY*sizeof(int));
+        theArray[i] = (double*) malloc(arraySizeY*sizeof(double));
     return theArray;
 } 
 
 //A: n*p, B: p*m
-int** matrixMultiply(int** A, int** B, int n, int m, int p){
+double** matrixMultiply(double** A, double** B, int n, int m, int p){
 	int i, j, k;
-	int** C = Make2DIntArray(n,m);
+	double** C = Make2DdoubleArray(n,m);
 	for (i=0; i<n; i++){
 		for (j=0; j<m; j++){
 	    C[i][j]=INF;
@@ -35,7 +35,7 @@ int** matrixMultiply(int** A, int** B, int n, int m, int p){
 
 }
 
-int** matrixAdd(int** A, int** B, int** C, int n, int m){
+double** matrixAdd(double** A, double** B, double** C, int n, int m){
 	int i, j, k;
 	for (i=0; i<n; i++){
 		for (j=0; j<m; j++){
@@ -46,15 +46,15 @@ int** matrixAdd(int** A, int** B, int** C, int n, int m){
 }
 
 
-int** DC_APSP(int** A, int n){
+double** DC_APSP(double** A, int n){
 	int i,j;
 	if(n==1) return A;
 
 	//partition
-	int** A11 = Make2DIntArray(n/2, n/2);
-	int** A12 = Make2DIntArray(n/2, n/2);
-	int** A21 = Make2DIntArray(n/2, n/2);
-	int** A22 = Make2DIntArray(n/2, n/2);
+	double** A11 = Make2DdoubleArray(n/2, n/2);
+	double** A12 = Make2DdoubleArray(n/2, n/2);
+	double** A21 = Make2DdoubleArray(n/2, n/2);
+	double** A22 = Make2DdoubleArray(n/2, n/2);
 
 	for(i=0; i<n/2; i++)
 		for(j=0; j<n/2; j++){
@@ -77,13 +77,13 @@ int** DC_APSP(int** A, int n){
 
 
 	//code for check
-	// printf("A A21\n");
+	// prdoublef("A A21\n");
 	// for(i=0; i<n/2; i++){
 	// for(j=0; j<n/2; j++){
-	// 	printf("%d ", A11[i][j]);
+	// 	prdoublef("%d ", A11[i][j]);
 
 	// }
-	// printf("\n");
+	// prdoublef("\n");
 	// }
 
 //copy back
@@ -108,7 +108,7 @@ int main(){
 
 	N=4;
 
-	int** D = Make2DIntArray(N, N);	
+	double** D = Make2DdoubleArray(N, N);	
 	for (i=0; i<N; i++){
 		for (j=0; j<N; j++){
 	    D[i][j]=INF;
@@ -132,7 +132,7 @@ int main(){
 	//check
 	for (i=0; i<N; i++){
     	for (j=0; j<N; j++){
-        printf("%d ", D[i][j]);
+        printf("%.0f ", D[i][j]);
     	}
     	printf("\n");
     }

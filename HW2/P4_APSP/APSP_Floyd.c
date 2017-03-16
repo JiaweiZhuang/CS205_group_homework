@@ -4,15 +4,15 @@
 # define INF 100
 # define MIN(x, y) (((x) < (y)) ? (x) : (y))
 
-int** Make2DIntArray(int arraySizeX, int arraySizeY) {
-    int** theArray;
-    theArray = (int**) malloc(arraySizeX*sizeof(int*));
+double** Make2DdoubleArray(double arraySizeX, double arraySizeY) {
+    double** theArray;
+    theArray = (double**) malloc(arraySizeX*sizeof(double*));
     for (int i = 0; i < arraySizeX; i++)
-        theArray[i] = (int*) malloc(arraySizeY*sizeof(int));
+        theArray[i] = (double*) malloc(arraySizeY*sizeof(double));
     return theArray;
 } 
 
-int** Floyd_APSP(int** D, int N){
+double** Floyd_APSP(double** D, double N){
     int i,j,k;
 
     for(k=0; k<N; k++)
@@ -32,7 +32,7 @@ int main(){
 
 	N=4;
 
-    int** D = Make2DIntArray(N, N);	
+    double** D = Make2DdoubleArray(N, N);	
 	for (i=0; i<N; i++){
     	for (j=0; j<N; j++){
         D[i][j]=INF;
@@ -56,7 +56,7 @@ int main(){
     //check
 	for (i=0; i<N; i++){
     	for (j=0; j<N; j++){
-        printf("%d ", D[i][j]);
+        printf("%.0f ", D[i][j]);
     	}
     	printf("\n");
     }
