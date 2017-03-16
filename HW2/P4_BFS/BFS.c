@@ -2,6 +2,34 @@
 # include <stdio.h>
 # include <math.h>
 
+int graph_from_edge_list (char filenm,int N) {
+        int max_edges = 1000000;
+        int nedges, nr, t, h;
+        int** A = Make2DIntArray(N, N);
+        FILE *ptr_file;
+        for (i=0; i<N; i++){
+                for (j=0; j<N; j++){
+                A[i][j]=0;
+                }
+        }
+
+        ptr_file =fopen(filenm,"r");
+                if (!ptr_file)
+                        return 1;
+        nedges = 0;
+        nr = fscanf(ptr_file, "%i %i", &t,&h);
+        while (nr == 2) {
+        if (nedges >= max_edges) {
+        printf("Limit of %d edges exceeded.\n",max_edges);
+        exit(1);
+        }
+        A[t-1][h-1] = 1;
+        nedges += 1;
+        nr = fscanf(ptr_file, "%i %i",&t,&h);
+        }
+        return A;
+}
+
 int** Make2DIntArray(int arraySizeX, int arraySizeY) {
     int** theArray;
     theArray = (int**) malloc(arraySizeX*sizeof(int*));
@@ -16,15 +44,20 @@ int* Make1DIntArray(int arraySize){
     return theArray;
 }
 
-int main(){
+int main(int argc,char *argv[]){
 
 	//build the graph of lecture11 slide20
 	int N; //number of vertex;
 	int i, j, temp;
-
-	N=7;
-
-
+	int** A;
+	if (argc != ) {
+            printf("Usage: %s N filenm\n",argv[0]);
+            return 1;
+        }
+	N = atoi(argv[1]);
+	filenm = argv[2];
+        A = graph_from_edge_list(filenm,N);   //Get graph matrix
+	
 	int* x = Make1DIntArray(N);
 	x[0]=1; //1 is the root node, start our BFS from here.
 	for (i=1; i<N; i++){
@@ -37,40 +70,6 @@ int main(){
     	y[i]=0;
 	}
 
-
-	int** A = Make2DIntArray(N, N);	
-	for (i=0; i<N; i++){
-    	for (j=0; j<N; j++){
-        A[i][j]=0;
-    	}
-    }
-
-
-
-    //build the edge
-    A[0][0]=1;
-    A[0][1]=1;
-    A[0][3]=1;
-    A[1][0]=1;
-    A[1][1]=1;
-    A[1][4]=1;
-    A[1][6]=1;
-    A[2][2]=1;
-    A[2][5]=1;
-    A[3][0]=1;
-    A[3][2]=1;
-    A[3][3]=1;    
-    A[3][6]=1;
-    A[4][4]=1;
-    A[4][5]=1;
-    A[5][2]=1;
-    A[5][5]=1;
-    A[6][2]=1;
-    A[6][3]=1;
-    A[6][4]=1;
-    A[6][6]=1;
-
-
 //MxV function   for reference
 // for (i=0; i<N; i++){
 //     	for (j=0; j<N; j++){
@@ -82,6 +81,7 @@ while(1){
 
 	//parallel here?
 	for (i=0; i<N; i++){
+		if(!x[i]){break;}
 		for(j=0; j<N; j++){
 			y[j] |= A[i][j] & x[i];
 		}
@@ -94,7 +94,7 @@ while(1){
 	}
 	printf("\n");
 
-	//check if there's more mode to visit
+	//check if there's more node to visit
 	temp=1;
 	for(j=0; j<N; j++)
 	{
