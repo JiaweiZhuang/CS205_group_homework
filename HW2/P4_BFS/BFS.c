@@ -50,7 +50,7 @@ int main(int argc,char *argv[]){
 	int N; //number of vertex;
 	int i, j, temp;
 	int** A;
-	if (argc != ) {
+	if (argc != 3) {
             printf("Usage: %s N filenm\n",argv[0]);
             return 1;
         }
