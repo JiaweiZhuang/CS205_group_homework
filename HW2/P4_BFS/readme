@@ -1,3 +1,7 @@
 Edge list: sample.txt N = 7 
 Edge list: rmat13.txt N = 8192
 Example to run: ./BSF 7 sample.txt
+
+To generate RMAT graph, run graph500 in matlab. Tune SCALE and edgefactor.
+SCALE determine the size of vertex: 2^SCALE
+edgefactor is the average number of edge associated with each vertex.

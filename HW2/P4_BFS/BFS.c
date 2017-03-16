@@ -38,7 +38,7 @@ int** graph_from_edge_list (char* filenm,int N) {
         printf("Limit of %d edges exceeded.\n",max_edges);
         exit(1);
         }
-        A[t-1][h-1] = 1;
+        A[t][h] = 1;
         nedges += 1;
         nr = fscanf(ptr_file, "%i %i",&t,&h);
         }
