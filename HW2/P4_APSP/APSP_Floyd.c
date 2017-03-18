@@ -24,33 +24,53 @@ double** Floyd_APSP(double** D, double N){
 
 }
 
+int** graph_from_edge_list (char* filenm,int N) {
+        int max_edges = 1000000;
+        int nedges, nr, t, h;
+        int** A = Make2DIntArray(N, N);
+        FILE *ptr_file;
+        int i,j;
+        for (i=0; i<N; i++){
+                for (j=0; j<N; j++){
+                A[i][j] = Inf;
+                }
+        }
+	for (i=0; i<N; i++){
+		A[i][i] = 0;
+	}
 
-int main(){
+        ptr_file =fopen(filenm,"r");
+                if (!ptr_file)
+                        return 0;
+        nedges = 0;
+        nr = fscanf(ptr_file, "%i %i", &t,&h);
+        while (nr == 2) {
+        if (nedges >= max_edges) {
+        printf("Limit of %d edges exceeded.\n",max_edges);
+        exit(1);
+        }
+        A[t][h] = 1;
+        nedges += 1;
+        nr = fscanf(ptr_file, "%i %i",&t,&h);
+        }
+        return A;
+}
+
+
+int main(int argc,char *argv[]){
 	//build the graph of lecture11 slide23
 	int N; //number of vertex;
 	int i, j, k;
+	int** D;
+    	if (argc != 3) {
+            printf("Usage: %s N filenm\n",argv[0]);
+            return 1;
+        }
+        N = atoi(argv[1]);
+        char* filenm = argv[2];
+        D = graph_from_edge_list(filenm,N);
 
-	N=4;
-
-    double** D = Make2DdoubleArray(N, N);	
-	for (i=0; i<N; i++){
-    	for (j=0; j<N; j++){
-        D[i][j]=INF;
-    	}
-    }
-
-    for (i=0; i<N; i++){
-    	D[i][i] = 0;
-    }
-
-    //build the edges
-    D[0][2]=3;
-    D[1][0]=2;
-    D[2][1]=7;
-    D[2][3]=1;
-    D[3][0]=6;
-
-    D = Floyd_APSP(D, N);
+    	D = Floyd_APSP(D, N);
 
 
     //check
