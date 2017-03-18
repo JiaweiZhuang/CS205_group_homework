@@ -1,3 +1,2 @@
 #!/bin/bash
-
-gcc  BFS.c -o BFS.out
+gcc -O2 BFS.c -o BFS.out

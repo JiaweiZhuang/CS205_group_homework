@@ -119,10 +119,10 @@ while(1){
         }
 
 	//print y vector to check
-	for(j=0; j<N; j++)
-	{
-		printf("%d ", y[j]);
-	}
+	//for(j=0; j<N; j++)
+	//{
+	//	printf("%d ", y[j]);
+	//}
 	printf("distance %d \n", distance);
 
 	if(flag==1){break;}
