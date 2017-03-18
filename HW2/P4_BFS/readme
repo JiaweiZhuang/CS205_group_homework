@@ -1,3 +1,10 @@
+1) compile the code 
+$./compile.sh
+2) time and run the code
+$./run.sh
+see the 'real time'
+
+-----previous intruction----
 Edge list: sample.txt N = 7 
 Edge list: rmat_scale.txt N = 2^scale
 Example to run: ./BSF 7 sample.txt
