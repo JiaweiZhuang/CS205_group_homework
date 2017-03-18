@@ -97,12 +97,20 @@ while(1){
 	distance = distance + 1;  //furtherest levels
 
 	//Parallel!!!
-	for (i=0; i<nParentNode; i++){
-		idx = idxParentNode[i];
-		for(j=0; j<N; j++){
-			y[j] = y[j] || (A[idx][j] && x[idx]);
-		}
-	}
+    #pragma acc data copyin(N,A[:N][:N],x[:N],idxParentNode[:N],nParentNode) copy(y[:N])
+    {
+    #pragma acc parallel private(j,i,idx) 
+    {
+        #pragma acc loop 
+    	for(j=0; j<N; j++){
+            
+    	    for (i=0; i<nParentNode; i++){
+    		    idx = idxParentNode[i];
+    			y[j] = y[j] || (A[idx][j] && x[idx]);
+    		}
+    	}
+    }
+    }
 	
 	//reset parent nodes and check if converge
 	flag = 1; //converge flag
@@ -124,6 +132,7 @@ while(1){
 	//	printf("%d ", y[j]);
 	//}
 	printf("distance %d \n", distance);
+	printf("nParentNode %d \n", nParentNode);
 
 	if(flag==1){break;}
 
