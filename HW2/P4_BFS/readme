@@ -1,5 +1,5 @@
 Edge list: sample.txt N = 7 
-Edge list: rmat13.txt N = 8192
+Edge list: rmat_scale.txt N = 2^scale
 Example to run: ./BSF 7 sample.txt
 
 To generate RMAT graph, run graph500 in matlab. Tune SCALE and edgefactor.
