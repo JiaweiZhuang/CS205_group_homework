@@ -26,7 +26,7 @@ double** Floyd_APSP(double** D, double N){
 
 int** graph_from_edge_list (char* filenm,int N) {
         int max_edges = 1000000;
-        int nedges, nr, t, h;
+        int nedges, nr, t, h, d;
         int** A = Make2DIntArray(N, N);
         FILE *ptr_file;
         int i,j;
@@ -35,23 +35,23 @@ int** graph_from_edge_list (char* filenm,int N) {
                 A[i][j] = Inf;
                 }
         }
-	for (i=0; i<N; i++){
-		A[i][i] = 0;
-	}
 
         ptr_file =fopen(filenm,"r");
                 if (!ptr_file)
                         return 0;
         nedges = 0;
-        nr = fscanf(ptr_file, "%i %i", &t,&h);
+        nr = fscanf(ptr_file, "%i %i %i", &t,&h,&d);
         while (nr == 2) {
         if (nedges >= max_edges) {
         printf("Limit of %d edges exceeded.\n",max_edges);
         exit(1);
         }
-        A[t][h] = 1;
+        A[t][h] = d;
         nedges += 1;
-        nr = fscanf(ptr_file, "%i %i",&t,&h);
+        nr = fscanf(ptr_file, "%i %i %i",&t,&h,&d);
+        }
+	for (i=0; i<N; i++){
+                A[i][i] = 0;
         }
         return A;
 }
