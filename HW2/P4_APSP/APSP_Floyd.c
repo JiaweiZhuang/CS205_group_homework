@@ -41,7 +41,7 @@ int** graph_from_edge_list (char* filenm,int N) {
                         return 0;
         nedges = 0;
         nr = fscanf(ptr_file, "%i %i %i", &t,&h,&d);
-        while (nr == 2) {
+        while (nr == 3) {
         if (nedges >= max_edges) {
         printf("Limit of %d edges exceeded.\n",max_edges);
         exit(1);
