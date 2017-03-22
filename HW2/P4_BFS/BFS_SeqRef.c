@@ -125,14 +125,13 @@ int main(int argc, char *argv[]) {
     distance = distance + 1; // furtherest levels
 
     // Parallel!!!
-    #pragma \
+            #pragma \
     acc data copyin(N,A[:N][:N],x[:N],idxParentNode[:N],nParentNode) copy(y[:N])
     {
                     #pragma acc parallel private(j,i,idx)
       {
-                        #pragma acc loop // comment out this line for sequential
-        // execution on GPU
-
+        // #pragma acc loop // comment out this line for sequential execution on
+        // GPU
         for (j = 0; j < N; j++) {
           for (i = 0; i < nParentNode; i++) {
             idx  = idxParentNode[i];

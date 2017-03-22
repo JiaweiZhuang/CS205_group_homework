@@ -5,3 +5,4 @@
 # on GPU is correct, giving the same result as the sequential one.
 
 pgcc -O2 -acc -ta=host,tesla -Minfo=accel BFS.c -o BFS.out
+# pgcc -O2 -acc -ta=multicore,tesla -Minfo=accel BFS.c -o BFS.out
