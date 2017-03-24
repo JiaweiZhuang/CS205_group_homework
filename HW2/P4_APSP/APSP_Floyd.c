@@ -2,8 +2,11 @@
 #include <stdio.h>
 #include <math.h>
 #include <limits.h>
-#define INF 100
+#include <sys/time.h>
+#define INF 100 // weight is less than 100 in our generated RMAT graph
 #define MIN(x, y) (((x) < (y)) ? (x) : (y))
+
+struct timeval tStart, tStop, tElapsed;
 
 void StartTimer()
 {
@@ -32,8 +35,7 @@ int** Floyd_APSP(int **D, int N) {
   int i, j, k;
 
   for (k = 0; k < N; k++) {
-    printf("k: %d \n", k);
-
+    // printf("k: %d \n", k);
     for (i = 0; i < N; i++) {
       for (j = 0; j < N; j++) {
         D[i][j] = MIN(D[i][j], D[i][k] + D[k][j]);
@@ -46,9 +48,9 @@ int** Floyd_APSP(int **D, int N) {
 int** Floyd_APSP_Parallel(int **D, int **tmp, int N) {
   int i, j, k;
 
-  #pragma acc data copyin(D[:N][:N]) copy(tmp[:N][:N])
+  #pragma acc data copyin(D[:N][:N]) copy(D[:N][:N])
   {
-    #pragma acc  private(j,i)
+    #pragma acc private(j,i)
     {
       for (k = 0; k < N; k++) {
         // printf("k: %d \n", k);
@@ -56,10 +58,9 @@ int** Floyd_APSP_Parallel(int **D, int **tmp, int N) {
         #pragma acc parallel loop collapse(2)
         for (i = 0; i < N; i++) {
           for (j = 0; j < N; j++) {
-            tmp[i][j] = MIN(D[i][j], D[i][k] + D[k][j]);
+            D[i][j] = MIN(D[i][j], D[i][k] + D[k][j]);
           }
         }
-        D = tmp;
       }
     }
   }
@@ -133,17 +134,25 @@ int main(int argc, char *argv[]) {
     int **tmp2 = Make2DIntArray(N, N);
     D = Floyd_APSP_Parallel(D, tmp2, N);
 
-  } else if (argc == 3) {
+  } else if (argc == 4) {
     N = atoi(argv[1]);
     char *filenm = argv[2];
-
     D = graph_from_edge_list(filenm, N);
-    int **tmp = Make2DIntArray(N, N);
+    int flag = atoi(argv[3]);
 
-    StartTimer();
-    D = Floyd_APSP_Parallel(D, tmp, N);
-    double runtime = GetTimer();
-    printf("Total: %f ms\n", runtime);
+    if (flag == 0) {
+      StartTimer();
+      D = Floyd_APSP(D, N);
+      double runtime = GetTimer();
+      printf("Total time: %f ms\n", runtime);
+    }
+    if (flag == 1) {
+      int **tmp = Make2DIntArray(N, N);
+      StartTimer();
+      D = Floyd_APSP_Parallel(D, tmp, N);
+      double runtime = GetTimer();
+      printf("Total time: %f ms\n", runtime);
+    }
 
   } else {
     printf("Usage: %s N filenm\n", argv[0]);
