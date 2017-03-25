@@ -1,23 +1,38 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
-#define INF 100
+#include <sys/time.h>
+#define INF 100 // weight is less than 100 in our generated RMAT graph
 #define MIN(x, y) (((x) < (y)) ? (x) : (y))
 
-double** Make2DdoubleArray(double arraySizeX, double arraySizeY) {
-  double **theArray;
+struct timeval tStart, tStop, tElapsed;
 
-  theArray = (double **)malloc(arraySizeX * sizeof(double *));
+void StartTimer()
+{
+  gettimeofday(&tStart, NULL);
+}
 
-  for (int i = 0; i < arraySizeX; i++) theArray[i] = (double *)malloc(
-      arraySizeY * sizeof(double));
+double GetTimer()
+{
+  gettimeofday(&tStop, NULL);
+  timersub(&tStop, &tStart, &tElapsed);
+  return tElapsed.tv_sec * 1000.0 + tElapsed.tv_usec / 1000.0;
+}
+
+int** Make2DIntArray(int arraySizeX, int arraySizeY) {
+  int **theArray;
+
+  theArray = (int **)malloc(arraySizeX * sizeof(int *));
+
+  for (int i = 0; i < arraySizeX; i++) theArray[i] = (int *)malloc(
+      arraySizeY * sizeof(int));
   return theArray;
 }
 
 // A: n*p, B: p*m
-double** matrixMultiply(double **A, double **B, int n, int m, int p) {
-  int i, j, k;
-  double **C = Make2DdoubleArray(n, m);
+int** matrixMultiply(int **A, int **B, int n, int m, int p) {
+  int   i, j, k;
+  int **C = Make2DIntArray(n, m);
 
   for (i = 0; i < n; i++) {
     for (j = 0; j < m; j++) {
@@ -36,7 +51,7 @@ double** matrixMultiply(double **A, double **B, int n, int m, int p) {
   return C;
 }
 
-double** matrixAdd(double **A, double **B, double **C, int n, int m) {
+int** matrixAdd(int **A, int **B, int **C, int n, int m) {
   int i, j, k;
 
   for (i = 0; i < n; i++) {
@@ -47,16 +62,16 @@ double** matrixAdd(double **A, double **B, double **C, int n, int m) {
   return C;
 }
 
-double** DC_APSP(double **A, int n) {
+int** DC_APSP(int **A, int n) {
   int i, j;
-
+  // printf("%d, %d\n",n, A[0][2]);
   if (n == 1) return A;
 
   // partition
-  double **A11 = Make2DdoubleArray(n / 2, n / 2);
-  double **A12 = Make2DdoubleArray(n / 2, n / 2);
-  double **A21 = Make2DdoubleArray(n / 2, n / 2);
-  double **A22 = Make2DdoubleArray(n / 2, n / 2);
+  int **A11 = Make2DIntArray(n / 2, n / 2);
+  int **A12 = Make2DIntArray(n / 2, n / 2);
+  int **A21 = Make2DIntArray(n / 2, n / 2);
+  int **A22 = Make2DIntArray(n / 2, n / 2);
 
   for (i = 0; i < n / 2; i++)
     for (j = 0; j < n / 2; j++) {
@@ -85,39 +100,33 @@ double** DC_APSP(double **A, int n) {
                                       n / 2,
                                       n / 2), A11, n / 2, n / 2);
 
-
-  // code for check
-  // prdoublef("A A21\n");
-  // for(i=0; i<n/2; i++){
-  // for(j=0; j<n/2; j++){
-  //    prdoublef("%d ", A11[i][j]);
-
-  // }
-  // prdoublef("\n");
-  // }
-
   // copy back
-  for (i = 0; i < n / 2; i++)
+  for (i = 0; i < n / 2; i++) {
     for (j = 0; j < n / 2; j++) {
       A[i][j]                 =       A11[i][j];
       A[i][j + n / 2]         =       A12[i][j];
       A[i + n / 2][j]         =       A21[i][j];
       A[i + n / 2][j + n / 2] =       A22[i][j];
     }
+  }
+  free(A11);
+  free(A12);
+  free(A21);
+  free(A22);
 
   return A;
 }
 
 int** graph_from_edge_list(char *filenm, int N) {
   int   max_edges = 1000000;
-  int   nedges, nr, t, h;
+  int   nedges, nr, t, h, d;
   int **A = Make2DIntArray(N, N);
   FILE *ptr_file;
   int   i, j;
 
   for (i = 0; i < N; i++) {
     for (j = 0; j < N; j++) {
-      A[i][j] = Inf;
+      A[i][j] = INF;
     }
   }
 
@@ -149,22 +158,43 @@ int main(int argc, char *argv[]) {
   int   N; // number of vertex;
   int   i, j;
   int **D;
+  if (argc == 1) {
+    // Test on simple graph
+    N = 4;
+    int tmp[4][4] =
+    { { 0, INF,   3, INF }, { 2, 0, INF, INF }, { INF, 7, 0, 1 },
+      { 6, INF, INF,   0 } };
+    D = (int **)malloc(4 * sizeof(int *));
 
-  if (argc != 3) {
-    printf("Usage: %s N filenm\n", argv[0]);
-    return 1;
-  }
-  N = atoi(argv[1]);
-  char *filenm = argv[2];
-  D = graph_from_edge_list(filenm, N);
-
-  D = DC_APSP(D, N);
-
-  // check
-  for (i = 0; i < N; i++) {
-    for (j = 0; j < N; j++) {
-      printf("%.0f ", D[i][j]);
+    for (int i = 0; i < 4; i++) {
+      D[i] = (int *)malloc(4 * sizeof(int));
     }
-    printf("\n");
+
+    for (i = 0; i < 4; i++) {
+      for (j = 0; j < 4; j++) {
+        D[i][j] = tmp[i][j];
+        // printf("%d\n", D[i][j]);
+      }
+    }
+    D = DC_APSP(D, N);
+  } else if (argc == 3) {
+    N = atoi(argv[1]);
+    char *filenm = argv[2];
+    D = graph_from_edge_list(filenm, N);
+    StartTimer();
+    D = DC_APSP(D, N);
+    double runtime = GetTimer();
+    printf("Total time: %f ms\n", runtime);
+  } else {
+    printf("Usage: %s N filenm\n", argv[0]);
   }
+
+  //check
+  // for (i = 0; i < N; i++) {
+  //   for (j = 0; j < N; j++) {
+  //     printf("%d ", D[i][j]);
+  //   }
+  //   printf("\n");
+  // }
+  return 1;
 }

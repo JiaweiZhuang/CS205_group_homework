@@ -160,7 +160,7 @@ int main(int argc, char *argv[]) {
     // {
     //   printf("%d ", y[j]);
     // }
-    printf("Level %d, nParentNode %d \n", distance, nParentNode);
+    // printf("Level %d, nParentNode %d \n", distance, nParentNode);
 
     if (flag == 1) break;
 
